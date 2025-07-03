@@ -1,34 +1,24 @@
 services:
+  elixir_app:
+    build:
+      context: ./elixir_app  # ¡Punto clave!
+      dockerfile: Dockerfile
+    ports:
+      - "4000:4000"
+    volumes:
+      - ./elixir_app:/app
+    environment:
+      - MIX_ENV=prod
+    working_dir: /app
+
   fastapi_app:
-    build: 
+    build:
       context: ./fastapi_app
       dockerfile: Dockerfile
     ports:
       - "8000:8000"
+    volumes:
+      - ./fastapi_app:/app
     depends_on:
-      elixir_app:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/docs"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-
-  elixir_app:
-    build: 
-      context: ./elixir_app
-      dockerfile: Dockerfile
-    ports:
-      - "4000:4000"
-    environment:
-      - PORT=4000
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:4000/api/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-
-networks:
-  default:
-    name: vacation_network
-    driver: bridge
+      - elixir_app
+    working_dir: /app
